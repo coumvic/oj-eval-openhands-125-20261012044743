@@ -59,15 +59,15 @@ int main() {
         int n;
         scanf("%d", &n);
         
+        // First pass: collect all variables and store constraints
+        vector<long long> all_vars;
         vector<pair<long long, long long>> equal_constraints;
         vector<pair<long long, long long>> unequal_constraints;
-        vector<long long> all_vars;
         
+        all_vars.reserve(n * 2);
         equal_constraints.reserve(n);
         unequal_constraints.reserve(n);
-        all_vars.reserve(n * 2);
         
-        // Read all constraints and collect variables
         for (int i = 0; i < n; i++) {
             long long a, b;
             int e;
@@ -111,11 +111,6 @@ int main() {
         }
         
         printf("%s\n", possible ? "YES" : "NO");
-        
-        equal_constraints.clear();
-        unequal_constraints.clear();
-        all_vars.clear();
-        var_to_idx.clear();
     }
     
     return 0;
