@@ -56,19 +56,28 @@ int main() {
         int n;
         scanf("%d", &n);
         
-        vector<pair<pair<long long, long long>, int>> constraints;
-        constraints.reserve(n);
+        vector<pair<long long, long long>> equal_constraints;
+        vector<pair<long long, long long>> unequal_constraints;
         vector<long long> all_vars;
+        
+        equal_constraints.reserve(n);
+        unequal_constraints.reserve(n);
         all_vars.reserve(n * 2);
         
-        // Read all constraints and collect all variables
+        // Read all constraints and collect variables
         for (int i = 0; i < n; i++) {
             long long a, b;
             int e;
             scanf("%lld %lld %d", &a, &b, &e);
-            constraints.push_back({{a, b}, e});
+            
             all_vars.push_back(a);
             all_vars.push_back(b);
+            
+            if (e == 1) {
+                equal_constraints.push_back({a, b});
+            } else {
+                unequal_constraints.push_back({a, b});
+            }
         }
         
         // Coordinate compression
@@ -76,40 +85,34 @@ int main() {
         all_vars.erase(unique(all_vars.begin(), all_vars.end()), all_vars.end());
         
         unordered_map<long long, int> var_to_idx;
+        var_to_idx.reserve(all_vars.size() * 2);
         for (int i = 0; i < (int)all_vars.size(); i++) {
             var_to_idx[all_vars[i]] = i;
         }
         
         DSU dsu(all_vars.size());
         
-        // First pass: process all equality constraints
-        for (const auto& constraint : constraints) {
-            long long a = constraint.first.first;
-            long long b = constraint.first.second;
-            int e = constraint.second;
-            
-            if (e == 1) {
-                dsu.unite(var_to_idx[a], var_to_idx[b]);
-            }
+        // Process equality constraints
+        for (const auto& constraint : equal_constraints) {
+            dsu.unite(var_to_idx[constraint.first], var_to_idx[constraint.second]);
         }
         
         bool possible = true;
         
-        // Second pass: check all inequality constraints
-        for (const auto& constraint : constraints) {
-            long long a = constraint.first.first;
-            long long b = constraint.first.second;
-            int e = constraint.second;
-            
-            if (e == 0) {
-                if (dsu.same(var_to_idx[a], var_to_idx[b])) {
-                    possible = false;
-                    break;
-                }
+        // Check inequality constraints
+        for (const auto& constraint : unequal_constraints) {
+            if (dsu.same(var_to_idx[constraint.first], var_to_idx[constraint.second])) {
+                possible = false;
+                break;
             }
         }
         
         printf("%s\n", possible ? "YES" : "NO");
+        
+        equal_constraints.clear();
+        unequal_constraints.clear();
+        all_vars.clear();
+        var_to_idx.clear();
     }
     
     return 0;
